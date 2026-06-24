@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>수정 모드 | 경북기계금속고 안내봇</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root{--bg:#070b14;--bg2:#0c1220;--panel:#0f1828;--panel2:#13203a;--line:#1d2c47;
+    --cyan:#22e1ff;--blue:#3b82f6;--green:#34f5a0;--red:#ff6b81;--txt:#e6f0ff;--muted:#8aa0c0;--dim:#5b6f90;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Noto Sans KR',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6}
+  .bar{position:sticky;top:0;z-index:30;background:rgba(7,11,20,.92);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .bar h1{font-size:17px;font-weight:900}
+  .bar h1 span{color:var(--cyan)}
+  .bar .sp{flex:1}
+  .wrap{max-width:920px;margin:0 auto;padding:22px 16px 80px}
+  .hint{background:linear-gradient(120deg,rgba(34,225,255,.08),rgba(59,130,246,.05));border:1px solid var(--line);
+    border-radius:14px;padding:16px 18px;font-size:13.5px;color:var(--muted);margin-bottom:22px}
+  .hint b{color:var(--cyan)}
+  .cat{background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-radius:16px;
+    padding:18px;margin-bottom:18px}
+  .cat-head{display:flex;gap:10px;align-items:center;margin-bottom:14px}
+  .cat-head input.icon{width:54px;text-align:center;font-size:20px}
+  .cat-head input.title{flex:1;font-weight:700;font-size:16px}
+  input,textarea{background:var(--bg);border:1px solid var(--line);border-radius:10px;color:var(--txt);
+    padding:10px 12px;font-size:14px;font-family:inherit;outline:none;width:100%}
+  input:focus,textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,225,255,.12)}
+  textarea{resize:vertical;min-height:78px;white-space:pre-wrap}
+  .qa{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px;background:rgba(255,255,255,.015)}
+  .qa .qline{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+  .qa .qline span{font-family:'JetBrains Mono',monospace;color:var(--dim);font-size:12px;white-space:nowrap}
+  .btn{font-weight:700;font-size:13.5px;padding:9px 15px;border-radius:10px;cursor:pointer;border:1px solid var(--line);
+    background:var(--panel2);color:var(--txt);transition:.15s;font-family:inherit;white-space:nowrap}
+  .btn:hover{border-color:var(--cyan);color:var(--cyan)}
+  .btn.pri{background:linear-gradient(120deg,var(--cyan),var(--blue));color:#04121c;border:none}
+  .btn.pri:hover{transform:translateY(-1px);color:#04121c}
+  .btn.sm{font-size:12px;padding:6px 11px}
+  .btn.del{color:var(--red);border-color:#3a2230}
+  .btn.del:hover{background:var(--red);color:#1a0a0e;border-color:var(--red)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .addq{margin-top:4px}
+  .foot{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;padding-top:20px;border-top:1px solid var(--line)}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--green);color:#04140b;
+    font-weight:700;padding:12px 22px;border-radius:12px;opacity:0;transition:.25s;pointer-events:none;font-size:14px}
+  .toast.on{opacity:1}
+  a{color:var(--cyan)}
+  code{font-family:'JetBrains Mono',monospace;background:var(--bg2);padding:2px 6px;border-radius:5px;color:var(--cyan);font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="bar">
+  <h1>🛠️ 수정 모드 <span>· 안내봇 데이터 편집</span></h1>
+  <div class="sp"></div>
+  <a class="btn sm" href="index.html" target="_blank">👀 챗봇 미리보기</a>
+  <button class="btn sm" id="addCat">+ 새 분야</button>
+  <button class="btn pri" id="exportAll">💾 전체 내보내기(.md + kb.js)</button>
+</div>
+
+<div class="wrap">
+  <div class="hint">
+    여기서 질문/답변을 자유롭게 <b>추가·수정·삭제</b>한 뒤, 위 <b>[전체 내보내기]</b>를 누르면 수정된
+    <code>md</code> 파일들과 <code>kb.js</code>가 다운로드돼요.
+    그 파일들을 <b>GitHub 저장소의 같은 위치에 덮어쓰기(commit)</b> 하면 챗봇에 바로 반영됩니다.
+    <br>※ 답변에는 <code>&lt;b&gt;강조&lt;/b&gt;</code>, <code>&lt;a href='...'&gt;링크&lt;/a&gt;</code>, 줄바꿈(엔터) 사용 가능.
+  </div>
+  <div id="cats"></div>
+  <div class="foot">
+    <button class="btn" id="addCat2">+ 새 분야 추가</button>
+    <button class="btn pri" id="exportAll2">💾 전체 내보내기(.md + kb.js)</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="kb.js"></script>
+<script src="kb-loader.js"></script>
+<script>
+const catsEl = document.getElementById('cats');
+const toast = document.getElementById('toast');
+let DATA = [];
+
+function showToast(msg){ toast.textContent=msg; toast.classList.add('on'); setTimeout(()=>toast.classList.remove('on'),1800); }
+
+function render(){
+  catsEl.innerHTML='';
+  DATA.forEach((cat, ci)=>{
+    const box=document.createElement('div'); box.className='cat';
+    box.innerHTML=`
+      <div class="cat-head">
+        <input class="icon" value="${esc(cat.icon||'')}" data-ci="${ci}" data-k="icon" />
+        <input class="title" value="${esc(cat.title||'')}" data-ci="${ci}" data-k="title" placeholder="분야 이름" />
+        <button class="btn del sm" data-delcat="${ci}">분야 삭제</button>
+      </div>
+      <div class="qas"></div>
+      <div class="addq"><button class="btn sm" data-addq="${ci}">+ 질문 추가</button></div>
+    `;
+    const qas=box.querySelector('.qas');
+    (cat.items||[]).forEach((it, qi)=>{
+      const q=document.createElement('div'); q.className='qa';
+      q.innerHTML=`
+        <div class="qline"><span>Q${qi+1}</span>
+          <input value="${esc(it.q||'')}" data-ci="${ci}" data-qi="${qi}" data-k="q" placeholder="질문" />
+          <button class="btn del sm" data-delq="${ci}_${qi}">삭제</button>
+        </div>
+        <textarea data-ci="${ci}" data-qi="${qi}" data-k="a" placeholder="답변">${esc(it.a||'')}</textarea>
+      `;
+      qas.appendChild(q);
+    });
+    catsEl.appendChild(box);
+  });
+  bind();
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function bind(){
+  catsEl.querySelectorAll('input,textarea').forEach(el=>{
+    el.oninput=()=>{
+      const ci=+el.dataset.ci, k=el.dataset.k;
+      if(el.dataset.qi!==undefined){ DATA[ci].items[+el.dataset.qi][k]=el.value; }
+      else { DATA[ci][k]=el.value; }
+    };
+  });
+  catsEl.querySelectorAll('[data-delcat]').forEach(b=>b.onclick=()=>{
+    if(confirm('이 분야를 통째로 삭제할까요?')){ DATA.splice(+b.dataset.delcat,1); render(); }
+  });
+  catsEl.querySelectorAll('[data-addq]').forEach(b=>b.onclick=()=>{
+    DATA[+b.dataset.addq].items.push({q:'새 질문',a:'답변을 입력하세요.'}); render();
+  });
+  catsEl.querySelectorAll('[data-delq]').forEach(b=>b.onclick=()=>{
+    const [ci,qi]=b.dataset.delq.split('_').map(Number);
+    DATA[ci].items.splice(qi,1); render();
+  });
+}
+
+function addCat(){
+  const n=DATA.length+1;
+  DATA.push({id:'new'+n, icon:'❓', title:'새 분야', file:`md/${String(n).padStart(2,'0')}-새분야.md`, items:[{q:'새 질문',a:'답변을 입력하세요.'}]});
+  render(); window.scrollTo(0,document.body.scrollHeight);
+}
+
+/* ── 내보내기 ── */
+function toMd(cat){
+  let out=`# ${cat.title}\n<!-- icon: ${cat.icon} -->\n`;
+  (cat.items||[]).forEach(it=>{ out+=`\n## ${it.q}\n${it.a}\n`; });
+  return out;
+}
+function download(name, text){
+  const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+}
+function fileName(cat,i){
+  let f=cat.file || `md/${String(i+1).padStart(2,'0')}-${cat.title}.md`;
+  return f.split('/').pop();
+}
+function buildKb(){
+  const clean=DATA.map((c,i)=>({id:c.id||('c'+i), icon:c.icon, title:c.title, file:fileName(c,i),
+    items:(c.items||[]).map(it=>({q:it.q,a:it.a}))}));
+  return "/* 자동 생성 파일 (수정모드 내보내기). md 또는 수정모드에서 편집하세요. */\nwindow.KB_FALLBACK = "+JSON.stringify(clean,null,2)+";\n";
+}
+function buildManifest(){
+  return JSON.stringify({files: DATA.map((c,i)=>'md/'+fileName(c,i))}, null, 2)+"\n";
+}
+async function exportAll(){
+  for(let i=0;i<DATA.length;i++){ download(fileName(DATA[i],i), toMd(DATA[i])); await sleep(120); }
+  download('kb.js', buildKb()); await sleep(120);
+  download('manifest.json', buildManifest());
+  showToast('내보내기 완료! 다운로드된 파일을 GitHub에 덮어쓰세요 ✅');
+}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+document.getElementById('addCat').onclick=addCat;
+document.getElementById('addCat2').onclick=addCat;
+document.getElementById('exportAll').onclick=exportAll;
+document.getElementById('exportAll2').onclick=exportAll;
+
+/* 데이터 로드 (md 우선, 실패 시 kb.js) */
+KB.load().then(d=>{ DATA=JSON.parse(JSON.stringify(d)); render(); })
+  .catch(()=>{ alert('데이터를 불러오지 못했습니다. kb.js가 같은 폴더에 있는지 확인하세요.'); });
+</script>
+</body>
+</html>
