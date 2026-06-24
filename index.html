@@ -38,11 +38,10 @@
 
   /* 상단 타이틀 */
   .topbar{text-align:center;margin-bottom:16px}
-  .brand-logo{width:74px;height:74px;display:block;margin:0 auto 10px;
-    filter:drop-shadow(0 4px 14px rgba(0,0,0,.45))}
-  .partner-logo{height:34px;display:block;margin:12px auto 0;
-    padding:7px 16px;background:rgba(255,255,255,.92);border-radius:10px;
-    box-shadow:0 4px 14px rgba(0,0,0,.3)}
+  .logos{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:12px}
+  .logos img{height:56px;width:auto;filter:drop-shadow(0 3px 10px rgba(0,0,0,.4))}
+  .logos .slogo{height:60px}
+  @media(max-width:480px){ .logos img{height:46px} .logos .slogo{height:50px} }
   .topbar .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--cyan);
     border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:rgba(34,225,255,.06);letter-spacing:.5px}
   .topbar h1{font-family:'Orbitron','Noto Sans KR',sans-serif;font-weight:800;font-size:22px;margin-top:12px;
@@ -92,7 +91,7 @@
   .nav-title span{font-weight:400;font-size:11.5px;color:var(--muted)}
   .nav-list{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;max-height:62vh}
   .nav-list::-webkit-scrollbar{width:8px}.nav-list::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
-  .cat{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--bg)}
+  .cat{border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--bg);flex-shrink:0}
   .cat-btn{width:100%;display:flex;align-items:center;gap:9px;padding:12px 14px;cursor:pointer;
     background:rgba(56,224,255,.05);border:none;color:var(--txt);font-size:14px;font-weight:600;font-family:inherit;text-align:left}
   .cat-btn:hover{background:rgba(56,224,255,.12);color:var(--cyan)}
@@ -122,11 +121,13 @@
 <body>
 <div class="page">
   <div class="topbar">
-    <img class="brand-logo" src="img/school-logo.png?v=4" alt="경북기계금속고등학교 교표" />
+    <div class="logos">
+      <img class="plogo" src="img/partner-logo.png?v=5" alt="협약형특성화고등학교" />
+      <img class="slogo" src="img/school-logo.png?v=5" alt="경북기계금속고등학교 교표" />
+    </div>
     <span class="tag">⚙ 경북기계금속고등학교 · 스마트제조 협약형 특성화고</span>
     <h1>학교 AI 안내봇 '기금이'</h1>
     <p>궁금한 유형을 고르면 바로 답해드려요 — 로그인·앱 설치 필요 없음</p>
-    <img class="partner-logo" src="img/partner-logo.png?v=4" alt="협약형특성화고등학교" />
   </div>
 
   <div class="layout">
@@ -155,10 +156,10 @@
   </footer>
 </div>
 
-<script src="ai-config.js?v=4"></script>
-<script src="kb.js?v=4"></script>
-<script src="kb-loader.js?v=4"></script>
-<script src="neis.js?v=4"></script>
+<script src="ai-config.js?v=5"></script>
+<script src="kb.js?v=5"></script>
+<script src="kb-loader.js?v=5"></script>
+<script src="neis.js?v=5"></script>
 <script>
 const body = document.getElementById('body');
 const navList = document.getElementById('navList');
