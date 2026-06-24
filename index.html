@@ -221,7 +221,19 @@ const askInput = document.getElementById('askInput');
 const GREET=["안녕","안뇽","하이","hi","hello","ㅎㅇ","반가","누구","시작"];
 const THANKS=["고마","감사","ㄳ","thank","고맙"];
 
-function norm(s){ return s.toLowerCase().replace(/[\s?!.,~]/g,''); }
+function norm(s){ return s.toLowerCase().replace(/[\s?!.,~·]/g,''); }
+// 띄어쓰기/구두점 기준으로 단어 토큰 추출 (2글자 이상)
+function words(s){ return (s.toLowerCase().match(/[가-힣a-z0-9]{2,}/g)||[]); }
+// 두 단어가 서로 포함관계면 매칭 (한국어 조사 흡수: "학교"⊂"학교만의")
+function matchScore(qWords, tokenList){
+  let sc=0;
+  tokenList.forEach(t=>{
+    for(const w of qWords){
+      if(t.includes(w) || w.includes(t)){ sc+=Math.min(t.length,w.length); break; }
+    }
+  });
+  return sc;
+}
 
 // 입력 문장과 각 Q&A 항목의 점수 계산
 function findAnswer(query){
@@ -229,15 +241,15 @@ function findAnswer(query){
   if(GREET.some(g=>q.includes(g))) return {a:"안녕하세요! 👋 저는 경북기계금속고 안내봇 <b>'기금이'</b>예요. 궁금한 걸 입력하거나 아래 버튼을 눌러보세요!"};
   if(THANKS.some(g=>q.includes(g))) return {a:"도움이 됐다니 기뻐요! 😊 더 궁금한 게 있으면 언제든 물어보세요."};
 
+  const qWords = words(query);
   let best=null, score=0;
   CATS.forEach(cat=>{
-    const catWords = norm(cat.title).match(/[가-힣a-z0-9]{2,}/g)||[];
+    const catWords = words(cat.title);
     cat.items.forEach(it=>{
-      let sc=0;
-      // 질문 문장에서 2글자 이상 토큰 추출 후 포함 여부로 점수
-      const tokens = (norm(it.q).match(/[가-힣a-z0-9]{2,}/g)||[]);
-      tokens.forEach(t=>{ if(q.includes(t)) sc+=t.length; });
-      catWords.forEach(t=>{ if(q.includes(t)) sc+=t.length; });
+      // 질문 단어(가중치 2배) + 카테고리 + 답변 일부 단어로 점수
+      let sc = matchScore(qWords, words(it.q))*2
+             + matchScore(qWords, catWords)
+             + matchScore(qWords, words(it.a).slice(0,40));
       if(sc>score){ score=sc; best={cat,it}; }
     });
   });
