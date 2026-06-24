@@ -256,9 +256,10 @@ function askQuestion(cat, it){
 const askForm = document.getElementById('askForm');
 const askInput = document.getElementById('askInput');
 
-// 인사/감사/장난 응답
+// 인사/감사/애정/장난 응답
 const GREET=["안녕","안뇽","하이","hi","hello","ㅎㅇ","반가","누구","시작"];
 const THANKS=["고마","감사","ㄳ","thank","고맙"];
+const LOVE=["사랑","좋아해","좋아한다","멋지","멋있","최고","짱","화이팅","파이팅","응원","귀여","대박","사랑해"];
 const BAD=["바보","멍청","꺼져","죽어","시발","씨발","ㅅㅂ","개새","병신","ㅂㅅ","ㅄ","닥쳐","욕"];
 
 function norm(s){ return s.toLowerCase().replace(/[\s?!.,~·]/g,''); }
@@ -320,7 +321,8 @@ function expand(query){
 function findAnswer(query){
   const nq = norm(query);
   if(BAD.some(g=>nq.includes(g))) return {a:"앗, 저는 학교 안내봇이라 그런 말엔 약해요 😅 학과·입학·취업·복지 같은 걸 물어봐 주세요!"};
-  if(GREET.some(g=>nq.includes(g))) return {a:"안녕하세요! 👋 저는 경북기계금속고등학교 AI 안내봇 <b>'기금이'</b>예요. 궁금한 걸 입력하거나 아래 버튼을 눌러보세요!"};
+  if(LOVE.some(g=>nq.includes(g))) return {a:"헤헤, 감사해요! 저도 <b>신입생 여러분을 사랑하고 응원합니다</b> ❤️\n경북기계금속고에서 꼭 만나요! 😊"};
+  if(GREET.some(g=>nq.includes(g))) return {a:"안녕하세요! 👋 저는 경북기계금속고등학교 AI 안내봇 <b>'기금이'</b>예요. 궁금한 걸 입력하거나 오른쪽 유형을 눌러보세요!"};
   if(THANKS.some(g=>nq.includes(g))) return {a:"도움이 됐다니 기뻐요! 😊 더 궁금한 게 있으면 언제든 물어보세요."};
 
   // 학교 소개 의도 → 소개 답변 직행 (인접 패턴만 정확히)
@@ -355,9 +357,24 @@ function handleAsk(text){
     typing(()=>{ showBotAnswer(res.a); });
     return;
   }
-  // 규칙 매칭 실패 → AI(있을 때만) 시도, 실패/한도초과 시 규칙 폴백
-  if(window.AI_WORKER_URL){ tryAI(text); }
-  else { typing(()=>ruleFallback()); }
+  // 학교와 관련성이 있을 때만 AI 호출 (완전 엉뚱한 입력은 AI도 부르지 않음)
+  if(window.AI_WORKER_URL && schoolRelevance(text) >= 2){ tryAI(text); }
+  else { typing(()=>offtopicReply()); }
+}
+
+// 학교 관련성(가장 잘 맞는 질문/유형 점수)
+function schoolRelevance(query){
+  const qWords=qTokens(expand(query));
+  let best=0;
+  CATS.forEach(cat=>{ const cw=docTokens(cat.title); cat.items.forEach(it=>{
+    const q=matchScore(qWords,docTokens(it.q))*2 + matchScore(qWords,cw);
+    if(q>best) best=q;
+  });});
+  return best;
+}
+// 학교와 무관한 입력 → 고정 안내(헛소리 방지)
+function offtopicReply(){
+  addMsg("저는 <b>경북기계금속고 안내봇</b>이라 학교에 대한 질문에 답해드려요 😊\n학과·입학·취업·복지·기숙사 같은 걸 물어봐 주세요!",'bot');
 }
 
 // 규칙 폴백(기본 안내)
