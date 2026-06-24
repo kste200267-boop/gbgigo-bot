@@ -48,8 +48,8 @@
   .page{position:relative;z-index:1;width:100%;max-width:1000px;padding:24px 16px 40px;
     display:flex;flex-direction:column;min-height:100vh}
   /* 2단 레이아웃: 왼쪽 채팅 + 오른쪽 선택 패널 */
-  .layout{flex:1;display:flex;gap:16px;align-items:stretch}
-  @media(max-width:780px){ .layout{flex-direction:column} }
+  .layout{flex:1;display:flex;gap:16px;align-items:flex-start}
+  @media(max-width:780px){ .layout{flex-direction:column;align-items:stretch} }
 
   /* 상단 타이틀 (학교 교표 — 제목 — 협약형 마크) */
   .topbar{display:flex;align-items:center;justify-content:center;gap:22px;margin-bottom:18px;flex-wrap:wrap}
