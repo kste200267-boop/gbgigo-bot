@@ -235,13 +235,25 @@ function matchScore(qWords, tokenList){
   return sc;
 }
 
+// 짧은말·은어 → 정식 키워드 보강
+const SYN = [["밥","급식 메뉴"],["돈","학비 등록금"],["폰","휴대폰"],["여자","여학생"],
+  ["남자","남학생"],["군대","병역 부사관 산업기능요원"],["월급","초봉 연봉 취업"],
+  ["기숙","기숙사"],["버스","통학버스"],["자랑","장점"],["좋은","장점"],["왜","장점 이유"],
+  ["취직","취업"],["대학","진학"],["동방","동아리"],["면허","자격증"]];
+function expand(query){
+  let qx = query;
+  SYN.forEach(([k,v])=>{ if(query.includes(k)) qx += " " + v; });
+  return qx;
+}
+
 // 입력 문장과 각 Q&A 항목의 점수 계산
 function findAnswer(query){
-  const q = norm(query);
-  if(GREET.some(g=>q.includes(g))) return {a:"안녕하세요! 👋 저는 경북기계금속고 안내봇 <b>'기금이'</b>예요. 궁금한 걸 입력하거나 아래 버튼을 눌러보세요!"};
-  if(THANKS.some(g=>q.includes(g))) return {a:"도움이 됐다니 기뻐요! 😊 더 궁금한 게 있으면 언제든 물어보세요."};
+  const qx = expand(query);
+  const q = norm(qx);
+  if(GREET.some(g=>norm(query).includes(g))) return {a:"안녕하세요! 👋 저는 경북기계금속고 안내봇 <b>'기금이'</b>예요. 궁금한 걸 입력하거나 아래 버튼을 눌러보세요!"};
+  if(THANKS.some(g=>norm(query).includes(g))) return {a:"도움이 됐다니 기뻐요! 😊 더 궁금한 게 있으면 언제든 물어보세요."};
 
-  const qWords = words(query);
+  const qWords = words(qx);
   let best=null, score=0;
   CATS.forEach(cat=>{
     const catWords = words(cat.title);
