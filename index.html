@@ -277,7 +277,8 @@ function qTokens(s){ const out=[]; words(s).forEach(w=>{ const st=stem(w); [w,st
 // 문서(질문/답변/유형) 토큰: 단어+어간 (조사 흡수 매칭용)
 function docTokens(s){ const out=[]; words(s).forEach(w=>{ [w,stem(w)].forEach(x=>{ if(x&&x.length>=2&&!out.includes(x)) out.push(x); }); }); return out; }
 // 거의 모든 질문에 들어가는 흔한 단어 → 약하게(점수 1)
-const LOW=new Set(["학교","학생","교육","수업","우리","여기","거기","고등","어떤","무슨","경북"]);
+const LOW=new Set(["학교","학생","교육","수업","우리","여기","거기","고등","어떤","무슨","경북",
+  "방법","방식","종류","정도","관련","정보","내용","경우","어떻","하는","대해","그냥"]);
 // 입력 단어별로 가장 잘 맞는 토큰 1개의 점수만 (흔한 단어는 약하게)
 function matchScore(qWords, tokenList){
   let sc=0;
