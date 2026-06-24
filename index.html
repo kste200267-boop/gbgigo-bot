@@ -38,6 +38,11 @@
 
   /* 상단 타이틀 */
   .topbar{text-align:center;margin-bottom:16px}
+  .brand-logo{width:74px;height:74px;display:block;margin:0 auto 10px;
+    filter:drop-shadow(0 4px 14px rgba(0,0,0,.45))}
+  .partner-logo{height:34px;display:block;margin:12px auto 0;
+    padding:7px 16px;background:rgba(255,255,255,.92);border-radius:10px;
+    box-shadow:0 4px 14px rgba(0,0,0,.3)}
   .topbar .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--cyan);
     border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:rgba(34,225,255,.06);letter-spacing:.5px}
   .topbar h1{font-family:'Orbitron','Noto Sans KR',sans-serif;font-weight:800;font-size:22px;margin-top:12px;
@@ -117,9 +122,11 @@
 <body>
 <div class="page">
   <div class="topbar">
+    <img class="brand-logo" src="img/school-logo.png?v=4" alt="경북기계금속고등학교 교표" />
     <span class="tag">⚙ 경북기계금속고등학교 · 스마트제조 협약형 특성화고</span>
     <h1>학교 AI 안내봇 '기금이'</h1>
     <p>궁금한 유형을 고르면 바로 답해드려요 — 로그인·앱 설치 필요 없음</p>
+    <img class="partner-logo" src="img/partner-logo.png?v=4" alt="협약형특성화고등학교" />
   </div>
 
   <div class="layout">
@@ -148,10 +155,10 @@
   </footer>
 </div>
 
-<script src="ai-config.js?v=3"></script>
-<script src="kb.js?v=3"></script>
-<script src="kb-loader.js?v=3"></script>
-<script src="neis.js?v=3"></script>
+<script src="ai-config.js?v=4"></script>
+<script src="kb.js?v=4"></script>
+<script src="kb-loader.js?v=4"></script>
+<script src="neis.js?v=4"></script>
 <script>
 const body = document.getElementById('body');
 const navList = document.getElementById('navList');
