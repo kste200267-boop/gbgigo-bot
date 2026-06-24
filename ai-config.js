@@ -7,4 +7,4 @@
      예) window.AI_WORKER_URL = "https://gbgigo-ai.<계정>.workers.dev";
    ▶ 비워두면("") AI 없이 규칙기반만 동작합니다(지금 상태).
    ===================================================================== */
-window.AI_WORKER_URL = "";
+window.AI_WORKER_URL = "https://gbgigo-ai.gbgg-bot.workers.dev";

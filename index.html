@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>경북기계금속고등학교 안내 에이전트 | 무엇이든 물어보세요</title>
+<title>경북기계금속고등학교 AI 안내봇 | 무엇이든 물어보세요</title>
 <meta name="description" content="경북기계금속고등학교 안내 챗봇 — 학과·입학·취업·복지를 선택형으로 바로 안내합니다." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -97,7 +97,7 @@
 <div class="page">
   <div class="topbar">
     <span class="tag">⚙ 경북기계금속고등학교 · 스마트제조 협약형 특성화고</span>
-    <h1>학교 안내봇 '기금이'</h1>
+    <h1>학교 AI 안내봇 '기금이'</h1>
     <p>궁금한 유형을 고르면 바로 답해드려요 — 로그인·앱 설치 필요 없음</p>
   </div>
 
@@ -264,7 +264,7 @@ function expand(query){
 function findAnswer(query){
   const nq = norm(query);
   if(BAD.some(g=>nq.includes(g))) return {a:"앗, 저는 학교 안내봇이라 그런 말엔 약해요 😅 학과·입학·취업·복지 같은 걸 물어봐 주세요!"};
-  if(GREET.some(g=>nq.includes(g))) return {a:"안녕하세요! 👋 저는 경북기계금속고등학교 안내 에이전트 <b>'기금이'</b>예요. 궁금한 걸 입력하거나 아래 버튼을 눌러보세요!"};
+  if(GREET.some(g=>nq.includes(g))) return {a:"안녕하세요! 👋 저는 경북기계금속고등학교 AI 안내봇 <b>'기금이'</b>예요. 궁금한 걸 입력하거나 아래 버튼을 눌러보세요!"};
   if(THANKS.some(g=>nq.includes(g))) return {a:"도움이 됐다니 기뻐요! 😊 더 궁금한 게 있으면 언제든 물어보세요."};
 
   const qWords = qTokens(expand(query));
@@ -351,7 +351,7 @@ askForm.addEventListener('submit',e=>{
 
 function start(){
   body.innerHTML='';
-  addMsg("안녕하세요! 👋 경북기계금속고등학교 안내 에이전트 <b>'기금이'</b>예요.\n아래 유형을 고르거나, <b>직접 입력</b>해서 물어봐도 돼요! 😊", 'bot');
+  addMsg("안녕하세요! 👋 경북기계금속고등학교 AI 안내봇 <b>'기금이'</b>예요.\n아래 유형을 고르거나, <b>직접 입력</b>해서 물어봐도 돼요! 😊", 'bot');
   showCategories();
 }
 resetBtn.onclick=start;
