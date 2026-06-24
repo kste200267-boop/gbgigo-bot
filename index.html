@@ -60,6 +60,8 @@
   .msg.user{align-self:flex-end;color:#04121c;font-weight:500;border-top-right-radius:5px;
     background:linear-gradient(120deg,var(--cyan),var(--blue))}
   .msg.bot b{color:var(--cyan)} .msg a{color:var(--cyan);font-weight:600}
+  .msg-img{display:block;width:100%;max-width:320px;border-radius:12px;margin-top:9px;
+    border:1px solid var(--line);cursor:zoom-in}
   .stamp{display:block;font-size:10px;color:var(--dim);margin-top:5px;font-family:'JetBrains Mono',monospace}
   .typing{align-self:flex-start;background:var(--panel2);border:1px solid var(--line);border-radius:16px;
     border-top-left-radius:5px;padding:14px 16px;display:flex;gap:5px}
@@ -121,6 +123,7 @@
 
 <script src="kb.js"></script>
 <script src="kb-loader.js"></script>
+<script src="neis.js"></script>
 <script>
 const body = document.getElementById('body');
 const choices = document.getElementById('choices');
@@ -146,6 +149,31 @@ function addLabel(txt){ const l=document.createElement('div'); l.className='labe
 function addChip(txt, cls, fn){
   const c=document.createElement('button'); c.className='chip '+(cls||''); c.innerHTML=txt; c.onclick=fn;
   choices.appendChild(c);
+}
+
+/* 답변 내 특수 마커 처리: [[IMG:파일]] = 사진,  [[MEAL]] = 실시간 급식 */
+function processImgs(html){
+  return html.replace(/\[\[IMG:([^\]]+)\]\]/g, (m,f)=>
+    `<img class="msg-img" src="img/${f.trim()}" alt="학교 사진" loading="lazy" onclick="window.open(this.src,'_blank')">`);
+}
+function showBotAnswer(text){
+  const hasMeal = /\[\[MEAL\]\]/.test(text);
+  let t = processImgs(text.replace(/\[\[MEAL\]\]/g,'').trim());
+  addMsg(t, 'bot');
+  if(hasMeal) appendMeal();
+}
+function appendMeal(){
+  const load=document.createElement('div'); load.className='msg bot';
+  load.innerHTML='🍚 오늘의 급식 메뉴를 불러오는 중...<span class="stamp">'+now()+'</span>';
+  body.appendChild(load); scroll();
+  if(!window.Neis){ load.remove(); return; }
+  Neis.getNextMeal().then(res=>{
+    load.remove();
+    if(!res || !res.meals.length){ addMsg('지금은 등록된 급식 정보가 없어요(주말·방학일 수 있어요). 🍽️','bot'); return; }
+    let html='🍚 <b>'+res.dateLabel+' 급식</b>';
+    res.meals.forEach(m=>{ html+='\n\n<b>['+m.type+']</b>\n'+m.menu; });
+    addMsg(html,'bot');
+  }).catch(()=>{ load.remove(); addMsg('급식 정보를 불러오지 못했어요. 😢 잠시 후 다시 시도해 주세요.','bot'); });
 }
 
 /* 1단계: 유형 선택 화면 */
@@ -175,7 +203,7 @@ function openCategory(cat){
 function askQuestion(cat, it){
   addMsg(it.q, 'user');
   typing(()=>{
-    addMsg(it.a, 'bot');
+    showBotAnswer(it.a);
     clearChoices();
     addLabel(`▌ ${cat.icon} ${cat.title} · 더 궁금한 점`);
     cat.items.filter(x=>x!==it).forEach(x=>{
@@ -222,7 +250,7 @@ function handleAsk(text){
   const res = findAnswer(text);
   typing(()=>{
     if(res){
-      addMsg(res.a,'bot');
+      showBotAnswer(res.a);
       if(res.cat){
         clearChoices();
         addLabel(`▌ ${res.cat.icon} ${res.cat.title} · 관련 질문`);
