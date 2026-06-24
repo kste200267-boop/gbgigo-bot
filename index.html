@@ -121,6 +121,7 @@
   </footer>
 </div>
 
+<script src="ai-config.js"></script>
 <script src="kb.js"></script>
 <script src="kb-loader.js"></script>
 <script src="neis.js"></script>
@@ -217,18 +218,31 @@ function askQuestion(cat, it){
 const askForm = document.getElementById('askForm');
 const askInput = document.getElementById('askInput');
 
-// 인사/감사 간단 응답
+// 인사/감사/장난 응답
 const GREET=["안녕","안뇽","하이","hi","hello","ㅎㅇ","반가","누구","시작"];
 const THANKS=["고마","감사","ㄳ","thank","고맙"];
+const BAD=["바보","멍청","꺼져","죽어","시발","씨발","ㅅㅂ","개새","병신","ㅂㅅ","ㅄ","닥쳐","욕"];
 
 function norm(s){ return s.toLowerCase().replace(/[\s?!.,~·]/g,''); }
 // 띄어쓰기/구두점 기준으로 단어 토큰 추출 (2글자 이상)
 function words(s){ return (s.toLowerCase().match(/[가-힣a-z0-9]{2,}/g)||[]); }
-// 두 단어가 서로 포함관계면 매칭 (한국어 조사 흡수: "학교"⊂"학교만의")
+// 한국어 조사 제거(어간 추출): "도제가"→"도제", "학교에서"→"학교"
+function stem(w){
+  for(const j of ['에서','으로','에게','한테','부터','까지','이라','라고']) if(w.endsWith(j)&&w.length-j.length>=2) return w.slice(0,-j.length);
+  for(const j of ['은','는','이','가','을','를','의','에','도','만','과','와','나','야','요','로']) if(w.endsWith(j)&&w.length-1>=2) return w.slice(0,-1);
+  return w;
+}
+// 의미 없는 말끝/의문어 (매칭에서 제외)
+const STOP=new Set(["보나요","보나","되나요","되나","있어요","있나요","있어","하나요","뭐예요","어때요","어떤가요","어때","어디","뭐야","어떻게","인가요","해요","돼요","나요","가요","가나요","가나","가고","예요","이에요","무엇","무슨","알려","궁금","대해","그리고","근데"]);
+// 입력을 단어+어간으로 확장 (말끝 제외)
+function qTokens(s){ const out=[]; words(s).forEach(w=>{ const st=stem(w); [w,st].forEach(x=>{ if(x&&x.length>=2&&!STOP.has(x)&&!out.includes(x)) out.push(x); }); }); return out; }
+// 문서(질문/답변/유형) 토큰: 단어+어간 (조사 흡수 매칭용)
+function docTokens(s){ const out=[]; words(s).forEach(w=>{ [w,stem(w)].forEach(x=>{ if(x&&x.length>=2&&!out.includes(x)) out.push(x); }); }); return out; }
+// 입력 단어별로 최대 1회만 점수 (흔한 단어 중복 집계 방지)
 function matchScore(qWords, tokenList){
   let sc=0;
-  tokenList.forEach(t=>{
-    for(const w of qWords){
+  qWords.forEach(w=>{
+    for(const t of tokenList){
       if(t.includes(w) || w.includes(t)){ sc+=Math.min(t.length,w.length); break; }
     }
   });
@@ -248,32 +262,35 @@ function expand(query){
 
 // 입력 문장과 각 Q&A 항목의 점수 계산
 function findAnswer(query){
-  const qx = expand(query);
-  const q = norm(qx);
-  if(GREET.some(g=>norm(query).includes(g))) return {a:"안녕하세요! 👋 저는 경북기계금속고 안내봇 <b>'기금이'</b>예요. 궁금한 걸 입력하거나 아래 버튼을 눌러보세요!"};
-  if(THANKS.some(g=>norm(query).includes(g))) return {a:"도움이 됐다니 기뻐요! 😊 더 궁금한 게 있으면 언제든 물어보세요."};
+  const nq = norm(query);
+  if(BAD.some(g=>nq.includes(g))) return {a:"앗, 저는 학교 안내봇이라 그런 말엔 약해요 😅 학과·입학·취업·복지 같은 걸 물어봐 주세요!"};
+  if(GREET.some(g=>nq.includes(g))) return {a:"안녕하세요! 👋 저는 경북기계금속고 안내봇 <b>'기금이'</b>예요. 궁금한 걸 입력하거나 아래 버튼을 눌러보세요!"};
+  if(THANKS.some(g=>nq.includes(g))) return {a:"도움이 됐다니 기뻐요! 😊 더 궁금한 게 있으면 언제든 물어보세요."};
 
-  const qWords = words(qx);
+  const qWords = qTokens(expand(query));
+  if(!qWords.length) return null;
   let best=null, score=0;
   CATS.forEach(cat=>{
-    const catWords = words(cat.title);
+    const catWords = docTokens(cat.title);
     cat.items.forEach(it=>{
-      // 질문 단어(가중치 2배) + 카테고리 + 답변 일부 단어로 점수
-      let sc = matchScore(qWords, words(it.q))*2
-             + matchScore(qWords, catWords)
-             + matchScore(qWords, words(it.a).slice(0,40));
+      // 질문·유형 단어가 먼저 걸려야 인정 (답변 본문은 보조 점수만)
+      const qScore = matchScore(qWords, docTokens(it.q))*2 + matchScore(qWords, catWords);
+      if(qScore <= 0) return;                         // 질문/유형에 안 걸리면 제외 → 엉뚱한 답 방지
+      const aScore = matchScore(qWords, docTokens(it.a).slice(0,40)) * 0.5;
+      const sc = qScore + aScore;
       if(sc>score){ score=sc; best={cat,it}; }
     });
   });
-  if(best && score>=2) return {a:best.it.a, cat:best.cat, it:best.it};
+  // 2글자 키워드가 질문에 정확히 걸리면 점수 4 이상 → 임계값 4
+  if(best && score>=4) return {a:best.it.a, cat:best.cat, it:best.it};
   return null;
 }
 
 function handleAsk(text){
   addMsg(text,'user');
   const res = findAnswer(text);
-  typing(()=>{
-    if(res){
+  if(res){
+    typing(()=>{
       showBotAnswer(res.a);
       if(res.cat){
         clearChoices();
@@ -281,11 +298,47 @@ function handleAsk(text){
         res.cat.items.filter(x=>x!==res.it).forEach(x=>addChip(x.q,'',()=>askQuestion(res.cat,x)));
         addChip('↩ 다른 유형 보기','back',showCategories);
       }
-    } else {
-      addMsg("음, 그건 제가 아직 정확히 몰라요. 🤔\n아래 유형 버튼에서 찾아보거나, 정확한 답은 <b>행정실 053-859-3800</b> 또는 <a href='https://gbgigo.com' target='_blank'>gbgigo.com</a>에서 확인해 주세요!",'bot');
-      showCategories();
-    }
-  });
+    });
+    return;
+  }
+  // 규칙 매칭 실패 → AI(있을 때만) 시도, 실패/한도초과 시 규칙 폴백
+  if(window.AI_WORKER_URL){ tryAI(text); }
+  else { typing(()=>ruleFallback()); }
+}
+
+// 규칙 폴백(기본 안내)
+function ruleFallback(){
+  addMsg("음, 그건 제가 아직 정확히 몰라요. 🤔\n아래 유형에서 찾아보거나, 정확한 답은 <b>교무실 053-859-3891</b> 또는 <a href='https://school.gyo6.net/gbgigo/' target='_blank'>학교 홈페이지</a>에서 확인해 주세요!",'bot');
+  showCategories();
+}
+
+// AI용 컨텍스트: 입력과 가장 관련있는 Q&A 상위 6개
+function buildContext(query){
+  const qWords=qTokens(expand(query));
+  const scored=[];
+  CATS.forEach(cat=>cat.items.forEach(it=>{
+    const sc=matchScore(qWords,docTokens(it.q))*2+matchScore(qWords,docTokens(it.a).slice(0,60));
+    scored.push({it,sc});
+  }));
+  scored.sort((a,b)=>b.sc-a.sc);
+  return scored.slice(0,6).map(x=>`Q:${x.it.q}\nA:${x.it.a.replace(/\[\[[^\]]*\]\]/g,'').trim()}`).join("\n\n");
+}
+
+// Cloudflare Workers AI 호출 (실패/한도초과 → 규칙 폴백)
+function tryAI(text){
+  const load=document.createElement('div'); load.className='typing'; load.innerHTML='<i></i><i></i><i></i>';
+  body.appendChild(load); scroll();
+  fetch(window.AI_WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({q:text, context:buildContext(text)})})
+    .then(r=>r.json())
+    .then(d=>{
+      load.remove();
+      if(d && d.answer){
+        addMsg(d.answer+'\n\n<span style="font-size:11px;color:var(--dim)">※ AI가 학교 자료를 바탕으로 생성한 답변이에요</span>','bot');
+        showCategories();
+      } else { ruleFallback(); }   // 한도초과·오류 → 규칙기반
+    })
+    .catch(()=>{ load.remove(); ruleFallback(); });
 }
 
 askForm.addEventListener('submit',e=>{

@@ -52,7 +52,7 @@ window.KB_FALLBACK = [
       },
       {
         "q": "입학 요강·일정은 어디서 보나요?",
-        "a": "정확한 일정(원서접수·발표)과 요강은 학교에서 확인하는 게 가장 정확해요.\n• 공식 홈페이지: <a href='https://gbgigo.com' target='_blank'>gbgigo.com</a>\n• 문의: <b>교무실 053-859-3891</b>"
+        "a": "정확한 일정(원서접수·발표)과 요강은 학교에서 확인하는 게 가장 정확해요.\n• 공식 홈페이지: <a href='https://school.gyo6.net/gbgigo/' target='_blank'>school.gyo6.net/gbgigo</a>\n• 문의: <b>교무실 053-859-3891</b>"
       },
       {
         "q": "내신 성적이 어느 정도면 되나요?",
@@ -79,7 +79,7 @@ window.KB_FALLBACK = [
     "file": "03-취업진로.md",
     "items": [
       {
-        "q": "취업이 잘 되나요?",
+        "q": "취업이 잘 되나요? (취업률)",
         "a": "네, 정말 잘 돼요! 🚀 \"<b>스마트팩토리 교육으로 100% 취업 보장</b>\"이 학교 슬로건이고,\n실제 <b>취업률이 약 95%</b>에 이르는 경북 공업계 특성화고 최상위권이에요!\n지역 <b>70개 기업과 협약</b>해서 이미 입학 인원의 <b>140%에 달하는 일자리를 확보</b>했어요!"
       },
       {
@@ -172,7 +172,7 @@ window.KB_FALLBACK = [
       },
       {
         "q": "두발·복장 규정은 어떤가요?",
-        "a": "💇 <b>두발은 자유</b>예요! 다만 과도한 염색이나 파마는 지도교육을 받을 수 있어요.\n그 외 자세한 생활 규정은 <a href='https://gbgigo.com' target='_blank'>학교 홈페이지 게시판</a>에서 확인할 수 있어요."
+        "a": "💇 <b>두발은 자유</b>예요! 다만 과도한 염색이나 파마는 지도교육을 받을 수 있어요.\n그 외 자세한 생활 규정은 <a href='https://school.gyo6.net/gbgigo/' target='_blank'>학교 홈페이지 게시판</a>에서 확인할 수 있어요."
       },
       {
         "q": "학교 분위기는 어떤가요?",
@@ -340,7 +340,7 @@ window.KB_FALLBACK = [
       },
       {
         "q": "전화번호·연락처 알려주세요.",
-        "a": "☎️ 안내 전화: <b>교무실 053-859-3891</b>\n홈페이지: <a href='https://gbgigo.com' target='_blank'>gbgigo.com</a>"
+        "a": "☎️ 안내 전화: <b>교무실 053-859-3891</b>\n공식 홈페이지: <a href='https://school.gyo6.net/gbgigo/' target='_blank'>school.gyo6.net/gbgigo</a>\n홍보 페이지: <a href='https://gbgigo.com' target='_blank'>gbgigo.com</a>"
       },
       {
         "q": "공립인가요 사립인가요?",
